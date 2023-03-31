@@ -1,0 +1,40 @@
+{
+	"Create model": {
+		"scope": "python",
+		"prefix": "model",
+		"body": [
+			"from django.db import models",
+			"\n\nclass $1(models.Model):",
+			"\t$3",
+			"\n\tdef __str__(self):",
+			"\t\treturn self.$2"
+		],
+		"description": "Creates a `Model`"
+	},
+	"Create `serializer` for `model`": {
+		"scope": "python",
+		"prefix": "serializer.model",
+		"body": [
+			"from rest_framework import serializers",
+			"from apps.$1.models import $2",
+			"\n\nclass $2Serializer(serializers.ModelSerializer):",
+			"\tclass Meta:",
+			"\t\tmodel = $2",
+			"\t\tfields = '__all__'"
+		],
+		"description": "Creates a `ModelSerializer`"
+	},
+	"Create `viewset` for `ModelSerializer`": {
+		"scope": "python",
+		"prefix": "viewset.serializer.model",
+		"body": [
+			"from rest_framework import viewsets",
+			"from apps.$1.serializers import $2Serializer",
+			"from apps.$1.models import $2",
+			"\n\nclass $2ViewSet(viewsets.ModelViewSet):",
+			"\tserializer_class = $2Serializer",
+			"\tqueryset = $2.objects.all()"
+		],
+		"description": "Creates a `ModelViewSet`"
+	},
+}
