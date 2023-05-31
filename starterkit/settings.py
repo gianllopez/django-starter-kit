@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
+from datetime import timedelta
 from os import getenv
 from pathlib import Path
 
@@ -26,7 +27,7 @@ SECRET_KEY = "django-insecure-f88(sfd9j1km=eg8s=$q#6_rhm_$-0y(g7!24$#b+f&231&(ig
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -39,6 +40,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "corsheaders",
+    "rest_framework_simplejwt",
+    "django_cleanup.apps.CleanupConfig",
     "apps.usuarios",
 ]
 
@@ -58,7 +61,7 @@ ROOT_URLCONF = "starterkit.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "assets/templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -111,7 +114,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "es"
 
 TIME_ZONE = "UTC"
 
@@ -122,6 +125,10 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
+
+MEDIA_ROOT = BASE_DIR / "media"
+
+MEDIA_URL = "media/"
 
 STATIC_URL = "static/"
 
@@ -135,14 +142,21 @@ AUTH_USER_MODEL = "usuarios.Usuario"
 CORS_ALLOW_ALL_ORIGINS = True
 
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASESS": [
+    "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_simplejwt.authentication.JWTAuthentication"
     ],
-    "DEFAULT_PERMISSION_CLASESS": ["rest_framework.permissions.IsAuthenticated"],
+    "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
+    "EXCEPTION_HANDLER": "core.exception_handler.custom_exception_handler",
 }
 
 SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
     "TOKEN_OBTAIN_SERIALIZER": "apps.usuarios.serializers.TokenObtainPairSerializer_",
     "TOKEN_REFRESH_SERIALIZER": "apps.usuarios.serializers.TokenRefreshSerializer_",
     "UPDATE_LAST_LOGIN": True,
 }
+
+EMAIL_HOST = getenv("EMAIL_HOST")
+EMAIL_PORT = getenv("EMAIL_PORT")
+EMAIL_HOST_USER = getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = getenv("EMAIL_HOST_PASSWORD")

@@ -1,19 +1,45 @@
 from django import forms
-from django.contrib.auth import get_user_model
+from django.contrib.admin.widgets import FilteredSelectMultiple
+from django.contrib.auth.forms import UserChangeForm, UserCreationForm
+from django.contrib.auth.models import Group, Permission
+
+from .models import Usuario
 
 
-class UsuarioForm(forms.ModelForm):
-    password = password = forms.CharField(
-        widget=forms.PasswordInput, label="Contraseña"
+class GrupoForm(forms.ModelForm):
+    permissions = forms.ModelMultipleChoiceField(
+        queryset=Permission.objects.exclude(
+            content_type__app_label__in=[
+                "auth",
+                "admin",
+                "sessions",
+                "contenttypes",
+            ]
+        ),
+        label="Permisos",
+        widget=FilteredSelectMultiple("grupos", False),
     )
 
     class Meta:
-        model = get_user_model()
-        fields = ["nombre", "apellido", "usuario", "correo_electronico", "password"]
+        model = Group
+        fields = "__all__"
 
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        user.set_password(self.cleaned_data["password"])
-        if commit:
-            user.save()
-        return user
+
+class CrearUsuarioForm(UserCreationForm):
+    groups = forms.ModelMultipleChoiceField(
+        Group.objects.all(),
+        label="Grupos",
+        widget=FilteredSelectMultiple("grupos", False),
+    )
+
+    class Meta:
+        model = Usuario
+        fields = ["foto", "nombre", "usuario", "correo_electronico"]
+        labels = {"correo_electronico": "Correo electrónico"}
+
+
+class ActualizarUsuarioForm(UserChangeForm):
+    class Meta:
+        model = Usuario
+        fields = ["foto", "nombre", "usuario", "correo_electronico", "password"]
+        labels = {"correo_electronico": "Correo electrónico"}
